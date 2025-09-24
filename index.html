@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FPGA Control Panel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #141e30, #243b55);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 30px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    .card {
+      background: #1f2a40;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    .toggle input {
+      display: none;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #888;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px; width: 26px;
+      left: 4px; bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #4CAF50;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    .sensor {
+      font-size: 18px;
+      margin-top: 15px;
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+  <h1>FPGA Control Panel</h1>
+
+  <div class="grid">
+    <!-- LED Toggles -->
+    <div class="card">LED 1 <label class="toggle"><input type="checkbox" onchange="toggleLED(1,this)"><span class="slider"></span></label></div>
+    <div class="card">LED 2 <label class="toggle"><input type="checkbox" onchange="toggleLED(2,this)"><span class="slider"></span></label></div>
+    <div class="card">LED 3 <label class="toggle"><input type="checkbox" onchange="toggleLED(3,this)"><span class="slider"></span></label></div>
+    <div class="card">LED 4 <label class="toggle"><input type="checkbox" onchange="toggleLED(4,this)"><span class="slider"></span></label></div>
+    <div class="card">LED 5 <label class="toggle"><input type="checkbox" onchange="toggleLED(5,this)"><span class="slider"></span></label></div>
+    <div class="card">LED 6 <label class="toggle"><input type="checkbox" onchange="toggleLED(6,this)"><span class="slider"></span></label></div>
+    <div class="card">LED 7 <label class="toggle"><input type="checkbox" onchange="toggleLED(7,this)"><span class="slider"></span></label></div>
+    <div class="card">LED 8 <label class="toggle"><input type="checkbox" onchange="toggleLED(8,this)"><span class="slider"></span></label></div>
+  </div>
+
+  <h2 style="margin-top:40px;">Sensors</h2>
+  <div class="card">
+    Sensor 1: <span id="s1">--</span>
+  </div>
+  <div class="card">
+    Sensor 2: <span id="s2">--</span>
+  </div>
+
+  <script>
+    const ESP_IP = "http://192.168.1.50";  // change to your ESP32 IP
+
+    function toggleLED(num, el) {
+      let state = el.checked ? "ON" : "OFF";
+      fetch(`${ESP_IP}/led?num=${num}&state=${state}`)
+        .then(r => console.log(`LED${num} ${state}`));
+    }
+
+    function updateSensors() {
+      fetch(`${ESP_IP}/sensor?num=1`)
+        .then(r => r.text())
+        .then(t => document.getElementById("s1").innerText = t);
+
+      fetch(`${ESP_IP}/sensor?num=2`)
+        .then(r => r.text())
+        .then(t => document.getElementById("s2").innerText = t);
+    }
+
+    setInterval(updateSensors, 2000); // refresh every 2 seconds
+  </script>
+</body>
+</html>
